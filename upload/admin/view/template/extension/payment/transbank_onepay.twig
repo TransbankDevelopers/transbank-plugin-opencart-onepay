@@ -42,16 +42,16 @@
               </div>
             </div>
 
-            <div class="form-group required1">
+            <div class="form-group required">
                 <label class="col-sm-2 control-label" for="payment_transbank_onepay_environment">{{ entry_transbank_onepay_environment }}</label>
                 <div class="col-sm-10">
                   <select name="payment_transbank_onepay_environment" id="payment_transbank_onepay_environment" class="form-control">
-                    {% if payment_transbank_onepay_environment == 'TEST' %}
-                    <option value="TEST" selected="selected">INTEGRACION</option>
-                    <option value="LIVE">PRODUCCION</option>
-                    {% else %}
+                    {% if payment_transbank_onepay_environment == 'LIVE' %}
                     <option value="TEST">INTEGRACION</option>
                     <option value="LIVE" selected="selected">PRODUCCION</option>
+                    {% else %}
+                    <option value="TEST" selected="selected">INTEGRACION</option>
+                    <option value="LIVE">PRODUCCION</option>
                     {% endif %}
                   </select>
                   {% if error_transbank_onepay_environment %}
@@ -60,7 +60,7 @@
                 </div>
             </div>
 
-            <div class="form-group required1">
+            <div class="form-group required">
                 <label class="col-sm-2 control-label" for="payment_transbank_onepay_apikey_test">{{ entry_transbank_onepay_apikey_test }}</label>
                 <div class="col-sm-10">
                   <input type="text" name="payment_transbank_onepay_apikey_test" id="payment_transbank_onepay_apikey_test" value="{{ payment_transbank_onepay_apikey_test }}" placeholder="{{ entry_transbank_onepay_apikey_test }}" class="form-control"/>
@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-			<div class="form-group required1">
+			<div class="form-group required">
               <label class="col-sm-2 control-label" for="payment_transbank_onepay_shared_secret_test">{{ entry_transbank_onepay_shared_secret_test }}</label>
               <div class="col-sm-10">
                 <input type="text" name="payment_transbank_onepay_shared_secret_test" id="payment_transbank_onepay_shared_secret_test" value="{{ payment_transbank_onepay_shared_secret_test }}" placeholder="{{ entry_transbank_onepay_shared_secret_test }}" class="form-control"/>
@@ -80,7 +80,7 @@
               </div>
             </div>
 
-            <div class="form-group required1">
+            <div class="form-group required">
                 <label class="col-sm-2 control-label" for="payment_transbank_onepay_apikey_live">{{ entry_transbank_onepay_apikey_live }}</label>
                 <div class="col-sm-10">
                   <input type="text" name="payment_transbank_onepay_apikey_live" id="payment_transbank_onepay_apikey_live" value="{{ payment_transbank_onepay_apikey_live }}" placeholder="{{ entry_transbank_onepay_apikey_live }}" class="form-control"/>
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-			<div class="form-group required1">
+			<div class="form-group required">
               <label class="col-sm-2 control-label" for="payment_transbank_onepay_shared_secret_live">{{ entry_transbank_onepay_shared_secret_live }}</label>
               <div class="col-sm-10">
                 <input type="text" name="payment_transbank_onepay_shared_secret_live" id="payment_transbank_onepay_shared_secret_live" value="{{ payment_transbank_onepay_shared_secret_live }}" placeholder="{{ entry_transbank_onepay_shared_secret_live }}" class="form-control"/>
