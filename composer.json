@@ -1,0 +1,14 @@
+{
+    "name": "transbank/onepay",
+    "homepage": "https://github.com/TransbankDevelopers/transbank-plugin-opencart-onepay",
+    "type": "opencart-extension",
+    "version": "1.0.0",
+    "minimum-stability": "stable",
+    "require": {
+        "transbank/transbank-sdk": "1.3.1",
+        "setasign/fpdf": "1.8.1"
+    },
+    "require-dev": {
+        "opencart/opencart" : "3.0.2.0"
+    }
+}
