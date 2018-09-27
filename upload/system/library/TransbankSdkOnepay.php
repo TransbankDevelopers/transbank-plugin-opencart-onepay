@@ -18,7 +18,7 @@ use \Transbank\Onepay\Exceptions\RefundCreateException;
  * Helper for load onepay sdk and expose to opencart
  * @autor vutreras (victor.utreras@continuum.cl)
  */
-class TransbanksdkOnepay {
+class TransbankSdkOnepay {
 
     const plugin_version = '1.0.0'; //version of plugin payment
     const app_key = '647E0914-DE74-11E7-80C1-9A214CF093AE'; //app key for opencart
@@ -161,6 +161,14 @@ class TransbanksdkOnepay {
         $pdf->addLogs();
 
         $pdf->Output();
+    }
+
+    public function logInfo($msg) {
+        $this->log->write('INFO: ' . $msg);
+    }
+
+    public function logError($msg) {
+        $this->log->write('ERROR: ' . $msg);
     }
 }
 ?>

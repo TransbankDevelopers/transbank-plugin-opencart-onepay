@@ -16,16 +16,30 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
     const payment_transbank_onepay_logo_url = 'payment_transbank_onepay_logo_url';
     const payment_transbank_onepay_status = 'payment_transbank_onepay_status';
 
-	private $error = array();
+    private $error = array();
+    private $transbankSdkOnepay = null;
+
+    private function loadResources() {
+        $this->load->language('extension/payment/transbank_onepay');
+        $this->load->model('setting/setting');
+    }
+
+    private function getTransbankSdkOnepay() {
+        $this->loadResources();
+        if (!class_exists('TransbankSdkOnepay')) {
+            $this->load->library('TransbankSdkOnepay');
+        }
+        $to = new TransbankSdkOnepay();
+        $to->init($this->config);
+        return $to;
+    }
 
 	public function index() {
 
-		$this->load->language('extension/payment/transbank_onepay');
-		$this->document->setTitle($this->language->get('heading_title'));
-        $this->load->model('setting/setting');
+        $this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
 
         if (($this->request->server['REQUEST_METHOD'] == 'GET') && isset($this->request->get['diagnostic_pdf'])) {
-            $this->createDiagnosticPdf();
+            $this->transbankSdkOnepay->createDiagnosticPdf();
             return;
         }
 
@@ -34,10 +48,13 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
             $this->session->data['success'] = $this->language->get('text_success');
             $data['msg_success'] = $this->session->data['success'];
             $this->cache->delete('payment_transbank_onepay');
+            $this->transbankSdkOnepay->logInfo('Configuracion guardada correctamente');
             //this line return to market/extension page on after save config
             //$this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
             //return;
         }
+
+        $this->document->setTitle($this->language->get('heading_title'));
 
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
@@ -178,15 +195,6 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         }
 
 		return !$this->error;
-    }
-
-    private function createDiagnosticPdf() {
-        if (!class_exists('TransbanksdkOnepay')) {
-            $this->load->library('TransbanksdkOnepay');
-        }
-        $to = new TransbanksdkOnepay();
-        $to->init($this->config);
-        $to->createDiagnosticPdf();
     }
 }
 ?>
