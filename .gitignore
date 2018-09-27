@@ -1,4 +1,5 @@
 .DS_Store
 /.idea
 .idea
-transbank-opencart-**.zip
+upload/system/library/transbank-sdk-php
+plugin-transbank-onepay-**.zip
