@@ -122,45 +122,24 @@ class TransbankSdkOnepay {
     /**
      * create a transaction in onepay
      */
-    public function createTransaction($channel, $data) {
+    public function createTransaction($channel, $payment_method, $items) {
 
         if ($channel == null) {
             return $this->failCreate('Falta parámetro channel');
         }
 
-        try {
+        if ($payment_method != 'transbank_onepay') {
+            return $this->failCreate('Método de pago no es Transbank Onepay');
+        }
 
-            if (isset($data['payment_method']) && isset($data['payment_method']['code'])) {
-                if ($data['payment_method']['code'] != 'transbank_onepay') {
-                    return $this->failCreate('Método de pago no es Transbank Onepay');
-                }
-            }
+        try {
 
             $options = $this->getOnepayOptions();
 
             $carro = new ShoppingCart();
 
-            # description, quantity, amount;
-            $objeto = new Item('Pelota de futbol', 1, 20000);
-            $carro->add($objeto);
-
-            /*
-            $items = $quote->getAllVisibleItems();
-
             foreach($items as $qItem) {
-                $item = new Item($qItem->getName(), intval($qItem->getQty()), intval($qItem->getPriceInclTax()));
-                $carro->add($item);
-            }
-            */
-
-            $shippingAmount = 0;
-
-            if (isset($data['shipping_method']) && isset($data['shipping_method']['cost'])) {
-                $shippingAmount = $data['shipping_method']['cost'];
-            }
-
-            if ($shippingAmount != 0) {
-                $item = new Item("Costo por envio", 1, intval($shippingAmount));
+                $item = new Item($qItem['name'], intval($qItem['quantity']), intval($qItem->['price']));
                 $carro->add($item);
             }
 

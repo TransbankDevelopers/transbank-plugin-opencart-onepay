@@ -44,6 +44,52 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         $this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
         $response = $this->transbankSdkOnepay->createTransaction($channel, $this->session->data);
 
+        $this->transbankSdkOnepay->logInfo('cart: ' . json_encode($this->cart->getProducts()));
+
+        $data = $this->session->data;
+
+        $order_info = $this->model_checkout_order->getOrder($data['order_id']);
+
+        if ($order_info) {
+
+            $items = array();
+
+            $payment_method = null;
+
+            if (isset($data['payment_method']) && isset($data['payment_method']['code'])) {
+                $payment_method = $data['payment_method']['code'];
+            }
+
+            if ($payment_method != null) {
+
+                foreach ($this->cart->getProducts() as $product) {
+
+                    $items[] = array(
+                        'name'     => htmlspecialchars($product['name']),
+                        'model'    => htmlspecialchars($product['model']),
+                        'price'    => $this->currency->format($product['price'], $order_info['currency_code'], false, false),
+                        'quantity' => $product['quantity']
+                    );
+                }
+
+                $shipping_amount = 0;
+
+                if (isset($data['shipping_method']) && isset($data['shipping_method']['cost'])) {
+                    $shipping_amount = $data['shipping_method']['cost'];
+                }
+
+                if ($shipping_amount != 0) {
+                    $items[] = array(
+                        'name'     => 'Costo por envio',
+                        'price'    => intval($shipping_amount),
+                        'quantity' => $product['quantity']
+                    );
+                }
+            }
+
+            $response = $this->transbankSdkOnepay->createTransaction($channel, $payment_method, $items);
+        }
+
         $this->response->addHeader('Content-Type: application/json');
         $this->response->setOutput(json_encode($response));
     }
@@ -67,6 +113,10 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
             //$order_status_id = $this->config->get('payment_transbank_onepay_order_status_id');
             //$this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $order_status_id, 'Transacción en Onepay', false);
             //$this->transbankSdkOnepay->logInfo('status_id: ' . $order_status_id);
+
+            //$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
+            //$this->transbankSdkOnepay->logInfo('order_info: ' . json_encode($order_info));
+
 
             $this->response->redirect($this->url->link('checkout/success', '', 'SSL'));
         }
