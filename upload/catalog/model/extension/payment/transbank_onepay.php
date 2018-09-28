@@ -31,7 +31,8 @@ class ModelExtensionPaymentTransbankOnepay extends Model {
 		$method_data = array(
             'code' => 'transbank_onepay',
             'title' => $this->language->get('text_title'),
-            'terms' => ''
+            'terms' => '',
+            'sort_order' => 0
         );
 		return $method_data;
 	}

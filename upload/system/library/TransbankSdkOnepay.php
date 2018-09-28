@@ -95,7 +95,10 @@ class TransbankSdkOnepay {
                 );
     }
 
-    private function initOnepay() {
+    /**
+     * return onepay pre-configured instance
+     */
+    private function getOnepayOptions() {
 
         $apiKey = $this->getApiKey();
         $sharedSecret = $this->getSharedSecret();
@@ -116,27 +119,189 @@ class TransbankSdkOnepay {
         return $options;
     }
 
-    public function createTransaction() {
+    /**
+     * create a transaction in onepay
+     */
+    public function createTransaction($channel, $data) {
 
-        $options = $this->initOnepay();
+        if ($channel == null) {
+            return $this->failCreate('Falta parámetro channel');
+        }
 
-	    $this->log->write('createTransaction: ' . json_encode($options));
+        try {
+
+            if (isset($data['payment_method']) && isset($data['payment_method']['code'])) {
+                if ($data['payment_method']['code'] != 'transbank_onepay') {
+                    return $this->failCreate('Método de pago no es Transbank Onepay');
+                }
+            }
+
+            $options = $this->getOnepayOptions();
+
+            $carro = new ShoppingCart();
+
+            # description, quantity, amount;
+            $objeto = new Item('Pelota de futbol', 1, 20000);
+            $carro->add($objeto);
+
+            /*
+            $items = $quote->getAllVisibleItems();
+
+            foreach($items as $qItem) {
+                $item = new Item($qItem->getName(), intval($qItem->getQty()), intval($qItem->getPriceInclTax()));
+                $carro->add($item);
+            }
+            */
+
+            $shippingAmount = 0;
+
+            if (isset($data['shipping_method']) && isset($data['shipping_method']['cost'])) {
+                $shippingAmount = $data['shipping_method']['cost'];
+            }
+
+            if ($shippingAmount != 0) {
+                $item = new Item("Costo por envio", 1, intval($shippingAmount));
+                $carro->add($item);
+            }
+
+            $this->logInfo('carro: ' . json_encode($carro));
+            $this->logInfo('create: ' . json_encode($data));
+
+            $transaction = Transaction::create($carro, $channel, $options);
+
+            $amount = $carro->getTotal();
+            $occ = $transaction->getOcc();
+            $ott = $transaction->getOtt();
+            $externalUniqueNumber = $transaction->getExternalUniqueNumber();
+            $issuedAt = $transaction->getIssuedAt();
+            $dateTransaction = date('Y-m-d H:i:s', $issuedAt);
+
+            return array(
+                'externalUniqueNumber' => $externalUniqueNumber,
+                'amount' => $amount,
+                'qrCodeAsBase64' => $transaction->getQrCodeAsBase64(),
+                'issuedAt' => $issuedAt,
+                'occ' => $occ,
+                'ott' => $ott
+            );
+
+        } catch (TransbankException $transbank_exception) {
+            return $this->failCreate($transbank_exception->getMessage());
+        }
     }
 
-    public function commitTransaction() {
-
-        $options = $this->initOnepay();
-
-        $this->log->write('commitTransaction: ' . json_encode($options));
+    private function failCreate($message) {
+        $this->logError('Creacion de transacción fallida: ' . $message);
+        $response = array('error' => $message);
+        return $response;
     }
 
+    /**
+     * commit a transaction in onepay
+     */
+    public function commitTransaction($status, $occ, $externalUniqueNumber) {
+
+        $options = $this->getOnepayOptions();
+
+        $orderStatusComplete = 'PROCESSING';
+        $orderStatusCanceled = 'CANCELED';
+        $orderStatusRejected = 'CLOSED';
+
+        $metadata = "<br><b>Estado:</b> {$status}
+                     <br><b>OCC:</b> {$occ}
+                     <br><b>N&uacute;mero de carro:</b> {$externalUniqueNumber}";
+
+        if ($status == null || $occ == null || $externalUniqueNumber == null) {
+            return $this->failCommit($orderStatusCanceled, 'Parametros inválidos', $metadata);
+        }
+
+        if ($status == 'PRE_AUTHORIZED') {
+
+            try {
+
+                $options = $this->getOnepayOptions();
+
+                $transactionCommitResponse = Transaction::commit($occ, $externalUniqueNumber, $options);
+
+                if ($transactionCommitResponse->getResponseCode() == 'OK') {
+
+                    $amount = $transactionCommitResponse->getAmount();
+                    $buyOrder = $transactionCommitResponse->getBuyOrder();
+                    $authorizationCode = $transactionCommitResponse->getAuthorizationCode();
+                    $description = $transactionCommitResponse->getDescription();
+                    $issuedAt = $transactionCommitResponse->getIssuedAt();
+                    $dateTransaction = date('Y-m-d H:i:s', $issuedAt);
+
+                    $message = "<h3>Detalles del pago con Onepay:</h3>
+                                <br><b>Fecha de Transacci&oacute;n:</b> {$dateTransaction}
+                                <br><b>OCC:</b> {$occ}
+                                <br><b>N&uacute;mero de carro:</b> {$externalUniqueNumber}
+                                <br><b>C&oacute;digo de Autorizaci&oacute;n:</b> {$authorizationCode}
+                                <br><b>Orden de Compra:</b> {$buyOrder}
+                                <br><b>Estado:</b> {$description}
+                                <br><b>Monto de la Compra:</b> {$amount}";
+
+                    $installmentsNumber = $transactionCommitResponse->getInstallmentsNumber();
+
+                    if ($installmentsNumber == 1) {
+
+                        $message = $message . "<br><b>N&uacute;mero de cuotas:</b> Sin cuotas";
+
+                    } else {
+
+                        $installmentsAmount = $transactionCommitResponse->getInstallmentsAmount();
+
+                        $message = $message . "<br><b>N&uacute;mero de cuotas:</b> {$installmentsNumber}
+                                                <br><b>Monto cuota:</b> {$installmentsAmount}";
+                    }
+
+                    $metadata2 = array('amount' => $amount,
+                                    'authorizationCode' => $authorizationCode,
+                                    'occ' => $occ,
+                                    'externalUniqueNumber' => $externalUniqueNumber,
+                                    'issuedAt' => $issuedAt);
+
+                    return $this->successCommit($orderStatusComplete, $message, $metadata2);
+                } else {
+                    return $this->failCommit($orderStatusRejected, 'Tu pago ha fallado. Vuelve a intentarlo más tarde.', $metadata);
+                }
+
+            } catch (TransbankException $transbank_exception) {
+                return $this->failCommit($orderStatusCanceled, $transbank_exception->getMessage(), $metadata);
+            }
+
+        } else if($status == 'REJECTED') {
+            return $this->failCommit($orderStatusRejected, 'Tu pago ha fallado. Pago rechazado', $metadata);
+        } else {
+            return $this->failCommit($orderStatusCanceled, 'Tu pago ha fallado. Compra cancelada', $metadata);
+        }
+    }
+
+    private function successCommit($orderStatus, $message, $metadata) {
+        $this->logInfo('Confirmación de transacción exitosa: orderStatus: ' . $orderStatus . ', ' . $message);
+        $response = array('orderStatus' => $orderStatus, 'success' => true);
+        return $response;
+    }
+
+    private function failCommit($orderStatus, $message, $metadata) {
+        $this->logError('Confirmación de transacción fallida: orderStatus: ' . $orderStatus . ', ' . $message);
+        $response = array('error' => $message);
+        return $response;
+    }
+
+    /**
+     * refund a transaction in onepay
+     */
     public function refundTransaction() {
 
-        $options = $this->initOnepay();
+        $options = $this->getOnepayOptions();
 
         $this->log->write('refundTransaction: ' . json_encode($options));
     }
 
+    /**
+     * create the diagnostic pdf
+     */
     public function createDiagnosticPdf() {
         //phpinfo();
         $pdf = new DiagnosticPDF($this);
@@ -163,10 +328,16 @@ class TransbankSdkOnepay {
         $pdf->Output();
     }
 
+    /**
+     * print INFO log
+     */
     public function logInfo($msg) {
         $this->log->write('INFO: ' . $msg);
     }
 
+    /**
+     * print ERROR log
+     */
     public function logError($msg) {
         $this->log->write('ERROR: ' . $msg);
     }

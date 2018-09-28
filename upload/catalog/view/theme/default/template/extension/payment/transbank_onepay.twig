@@ -1,1 +1,22 @@
-Mensaje: {{ msg }}
+
+<script type="text/javascript" src="https://cdn.rawgit.com/TransbankDevelopers/transbank-sdk-js-onepay/v1.5.3/lib/merchant.onepay.min.js"></script>
+
+<script type="text/javascript">
+
+    function placeOrder() {
+        var options = {
+            endpoint: '{{ action_create }}',
+            commerceLogo: '{{ logo_url }}',
+            callbackUrl: '{{ action_commit }}'
+        };
+        Onepay.checkout(options);
+    }
+
+</script>
+
+<div class="buttons">
+    <div class="pull-right">
+        <input type="button" value="{{ button_confirm }}" id="button-confirm" class="btn btn-primary" onclick="javascript:placeOrder();"/>
+    </div>
+</div>
+
