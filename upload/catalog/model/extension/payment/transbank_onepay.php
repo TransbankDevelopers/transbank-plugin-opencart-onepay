@@ -6,6 +6,8 @@
  */
 class ModelExtensionPaymentTransbankOnepay extends Model {
 
+    const PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER = 'payment_transbank_onepay_sort_order';
+
     private $transbankSdkOnepay = null;
 
     private function loadResources() {
@@ -18,22 +20,30 @@ class ModelExtensionPaymentTransbankOnepay extends Model {
         if (!class_exists('TransbankSdkOnepay')) {
             $this->load->library('TransbankSdkOnepay');
         }
-        $to = new TransbankSdkOnepay();
-        $to->init($this->config);
-        return $to;
+        return new TransbankSdkOnepay($this->config);
     }
 
     public function getMethod($address, $total) {
 
         $this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
-        $this->transbankSdkOnepay->logInfo('Model cargado');
 
-		$method_data = array(
-            'code' => 'transbank_onepay',
-            'title' => $this->language->get('text_title'),
-            'terms' => '',
-            'sort_order' => 0
-        );
+        $status = false;
+
+        if (intval($total) > 0) {
+			$status = true;
+		}
+
+        $method_data = array();
+
+		if ($status) {
+            $method_data = array(
+                'code' => 'transbank_onepay',
+                'title' => $this->language->get('text_title'),
+                'terms' => '',
+                'sort_order' => $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER)
+            );
+        }
+
 		return $method_data;
 	}
 }

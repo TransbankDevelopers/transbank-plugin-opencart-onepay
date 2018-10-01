@@ -11,8 +11,9 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 
     private function loadResources() {
         $this->load->language('extension/payment/transbank_onepay');
-        $this->load->model('setting/setting');
-        $this->load->model('checkout/order');
+        $this->load->model('setting/setting'); //load model in: $this->model_setting_setting
+        $this->load->model('localisation/order_status'); //load model in: $this->model_localisation_order_status
+        $this->load->model('checkout/order'); //load model in: $this->model_checkout_order
     }
 
     private function getTransbankSdkOnepay() {
@@ -20,15 +21,12 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         if (!class_exists('TransbankSdkOnepay')) {
             $this->load->library('TransbankSdkOnepay');
         }
-        $to = new TransbankSdkOnepay();
-        $to->init($this->config);
-        return $to;
+        return new TransbankSdkOnepay($this->config);
     }
 
 	public function index() {
 
 		$this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
-        $this->transbankSdkOnepay->logInfo('Controller catalog cargado');
 
         $data['action_create'] = $this->url->link('extension/payment/transbank_onepay/createTransaction', '', true);
         $data['action_commit'] = $this->url->link('extension/payment/transbank_onepay/commitTransaction', '', true);
@@ -42,52 +40,48 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         $channel = isset($this->request->post['channel']) ? $this->request->post['channel'] : null;
 
         $this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
-        $response = $this->transbankSdkOnepay->createTransaction($channel, $this->session->data);
-
-        $this->transbankSdkOnepay->logInfo('cart: ' . json_encode($this->cart->getProducts()));
 
         $data = $this->session->data;
 
-        $order_info = $this->model_checkout_order->getOrder($data['order_id']);
+        $orderInfo = $this->model_checkout_order->getOrder($data['order_id']);
 
-        if ($order_info) {
+        if ($orderInfo) {
 
             $items = array();
 
-            $payment_method = null;
+            $paymentMethod = null;
 
             if (isset($data['payment_method']) && isset($data['payment_method']['code'])) {
-                $payment_method = $data['payment_method']['code'];
+                $paymentMethod = $data['payment_method']['code'];
             }
 
-            if ($payment_method != null) {
+            if ($paymentMethod != null) {
 
                 foreach ($this->cart->getProducts() as $product) {
 
                     $items[] = array(
-                        'name'     => htmlspecialchars($product['name']),
-                        'model'    => htmlspecialchars($product['model']),
-                        'price'    => $this->currency->format($product['price'], $order_info['currency_code'], false, false),
-                        'quantity' => $product['quantity']
+                        'name' => htmlspecialchars($product['name']) . ' ' . htmlspecialchars($product['model']),
+                        'quantity' => $product['quantity'],
+                        'price' => $this->currency->format($product['price'], $orderInfo['currency_code'], false, false),
                     );
                 }
 
-                $shipping_amount = 0;
+                $shippingAmount = 0;
 
                 if (isset($data['shipping_method']) && isset($data['shipping_method']['cost'])) {
-                    $shipping_amount = $data['shipping_method']['cost'];
+                    $shippingAmount = $data['shipping_method']['cost'];
                 }
 
-                if ($shipping_amount != 0) {
+                if ($shippingAmount != 0) {
                     $items[] = array(
                         'name'     => 'Costo por envio',
-                        'price'    => intval($shipping_amount),
-                        'quantity' => $product['quantity']
+                        'price'    => $shippingAmount,
+                        'quantity' => 1
                     );
                 }
             }
 
-            $response = $this->transbankSdkOnepay->createTransaction($channel, $payment_method, $items);
+            $response = $this->transbankSdkOnepay->createTransaction($channel, $paymentMethod, $items);
         }
 
         $this->response->addHeader('Content-Type: application/json');
@@ -103,23 +97,39 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         $this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
         $response = $this->transbankSdkOnepay->commitTransaction($status, $occ, $externalUniqueNumber);
 
+        $this->transbankSdkOnepay->logInfo('response: ' . json_encode($response));
+
+        $data = $this->session->data;
+        $metadata = $response['metadata'];
+        $orderStatus = $this->getIdOrderStatus($response['orderStatus']);
+        $this->model_checkout_order->addOrderHistory($data['order_id'], $orderStatus, $metadata, false);
+
         if (isset($response['error'])) {
             $this->session->data['error'] = $response['error'];
             $this->response->redirect($this->url->link('checkout/checkout', '', 'SSL'));
         } else {
-            //payment_transbank_onepay_failed_status_id
-            //payment_transbank_onepay_completed_status_id
-
-            //$order_status_id = $this->config->get('payment_transbank_onepay_order_status_id');
-            //$this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $order_status_id, 'Transacción en Onepay', false);
-            //$this->transbankSdkOnepay->logInfo('status_id: ' . $order_status_id);
-
-            //$order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-            //$this->transbankSdkOnepay->logInfo('order_info: ' . json_encode($order_info));
-
-
-            $this->response->redirect($this->url->link('checkout/success', '', 'SSL'));
+            $this->response->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), 'SSL'));
         }
+    }
+
+    private function getIdOrderStatus($status) {
+
+        $value = null;
+
+        //load all order status
+        $order_statuses = $this->model_localisation_order_status->getOrderStatuses();
+
+        foreach ($order_statuses as $order_status) {
+            $this->transbankSdkOnepay->logInfo($status . ' - check status: ' . json_encode($order_status));
+            if (trim(strtolower($order_status['name'])) == $status) {
+                $value = $order_status['order_status_id'];
+                break;
+            }
+        }
+
+        $this->transbankSdkOnepay->logInfo('return status: ' . $value);
+
+        return $value;
     }
 }
 ?>

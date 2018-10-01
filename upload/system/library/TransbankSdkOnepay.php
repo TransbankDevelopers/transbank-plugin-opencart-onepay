@@ -22,7 +22,7 @@ class TransbankSdkOnepay {
 
     const PLUGIN_VERSION = '1.0.0'; //version of plugin payment
     const APP_KEY = '647E0914-DE74-11E7-80C1-9A214CF093AE'; //app key for opencart
-    const LOG_FILENAME = 'onepay-log.log';
+    const LOG_FILENAME = 'onepay-log.log'; //name of the log file
 
     //constant for keys configurations
     const PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT = 'payment_transbank_onepay_environment';
@@ -32,13 +32,12 @@ class TransbankSdkOnepay {
     const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE = 'payment_transbank_onepay_shared_secret_live';
     const PAYMENT_TRANSBANK_ONEPAY_LOGO_URL = 'payment_transbank_onepay_logo_url';
     const PAYMENT_TRANSBANK_ONEPAY_STATUS = 'payment_transbank_onepay_status';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID = 'payment_transbank_onepay_order_status_id';
+    const PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER = 'payment_transbank_onepay_sort_order';
 
-    public function __construct() {
+    public function __construct($config) {
+        $this->config = $config;
         $this->log = new Log(self::LOG_FILENAME);
-    }
-
-    public function init($config_) {
-        $this->config = $config_;
     }
 
     public function getEnvironment() {
@@ -122,13 +121,13 @@ class TransbankSdkOnepay {
     /**
      * create a transaction in onepay
      */
-    public function createTransaction($channel, $payment_method, $items) {
+    public function createTransaction($channel, $paymentMethod, $items) {
 
         if ($channel == null) {
             return $this->failCreate('Falta parámetro channel');
         }
 
-        if ($payment_method != 'transbank_onepay') {
+        if ($paymentMethod != 'transbank_onepay') {
             return $this->failCreate('Método de pago no es Transbank Onepay');
         }
 
@@ -136,32 +135,30 @@ class TransbankSdkOnepay {
 
             $options = $this->getOnepayOptions();
 
-            $carro = new ShoppingCart();
+            $cart = new ShoppingCart();
 
             foreach($items as $qItem) {
-                $item = new Item($qItem['name'], intval($qItem['quantity']), intval($qItem->['price']));
-                $carro->add($item);
+                $item = new Item($qItem['name'], intval($qItem['quantity']), intval($qItem['price']));
+                $cart->add($item);
             }
 
-            $this->logInfo('carro: ' . json_encode($carro));
-            $this->logInfo('create: ' . json_encode($data));
+            $this->logInfo('cart: ' . json_encode($cart));
 
-            $transaction = Transaction::create($carro, $channel, $options);
+            $transaction = Transaction::create($cart, $channel, $options);
 
-            $amount = $carro->getTotal();
+            $amount = $cart->getTotal();
             $occ = $transaction->getOcc();
             $ott = $transaction->getOtt();
             $externalUniqueNumber = $transaction->getExternalUniqueNumber();
             $issuedAt = $transaction->getIssuedAt();
-            $dateTransaction = date('Y-m-d H:i:s', $issuedAt);
 
             return array(
-                'externalUniqueNumber' => $externalUniqueNumber,
                 'amount' => $amount,
-                'qrCodeAsBase64' => $transaction->getQrCodeAsBase64(),
-                'issuedAt' => $issuedAt,
                 'occ' => $occ,
-                'ott' => $ott
+                'ott' => $ott,
+                'externalUniqueNumber' => $externalUniqueNumber,
+                'issuedAt' => $issuedAt,
+                'qrCodeAsBase64' => $transaction->getQrCodeAsBase64()
             );
 
         } catch (TransbankException $transbank_exception) {
@@ -182,9 +179,9 @@ class TransbankSdkOnepay {
 
         $options = $this->getOnepayOptions();
 
-        $orderStatusComplete = 'PROCESSING';
-        $orderStatusCanceled = 'CANCELED';
-        $orderStatusRejected = 'CLOSED';
+        $orderStatusComplete = 'processing';
+        $orderStatusCanceled = 'canceled';
+        $orderStatusRejected = 'denied';
 
         $metadata = "<br><b>Estado:</b> {$status}
                      <br><b>OCC:</b> {$occ}
@@ -258,14 +255,12 @@ class TransbankSdkOnepay {
 
     private function successCommit($orderStatus, $message, $metadata) {
         $this->logInfo('Confirmación de transacción exitosa: orderStatus: ' . $orderStatus . ', ' . $message);
-        $response = array('orderStatus' => $orderStatus, 'success' => true);
-        return $response;
+        return array('success' => true, 'orderStatus' => $orderStatus, 'message' => $message, 'metadata' => $metadata);
     }
 
     private function failCommit($orderStatus, $message, $metadata) {
         $this->logError('Confirmación de transacción fallida: orderStatus: ' . $orderStatus . ', ' . $message);
-        $response = array('error' => $message);
-        return $response;
+        return array('error' => true, 'orderStatus' => $orderStatus, 'message' => $message, 'metadata' => $metadata);
     }
 
     /**
