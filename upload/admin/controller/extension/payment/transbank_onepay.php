@@ -15,13 +15,16 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
     const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE = 'payment_transbank_onepay_shared_secret_live';
     const PAYMENT_TRANSBANK_ONEPAY_LOGO_URL = 'payment_transbank_onepay_logo_url';
     const PAYMENT_TRANSBANK_ONEPAY_STATUS = 'payment_transbank_onepay_status';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID = 'payment_transbank_onepay_order_status_id';
+    const PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER = 'payment_transbank_onepay_sort_order';
 
     private $error = array();
     private $transbankSdkOnepay = null;
 
     private function loadResources() {
         $this->load->language('extension/payment/transbank_onepay');
-        $this->load->model('setting/setting');
+        $this->load->model('setting/setting'); //load model in: $this->model_setting_setting
+        $this->load->model('localisation/order_status'); //load model in: $this->model_localisation_order_status
     }
 
     private function getTransbankSdkOnepay() {
@@ -29,9 +32,7 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         if (!class_exists('TransbankSdkOnepay')) {
             $this->load->library('TransbankSdkOnepay');
         }
-        $to = new TransbankSdkOnepay();
-        $to->init($this->config);
-        return $to;
+        return new TransbankSdkOnepay($this->config);
     }
 
 	public function index() {
@@ -49,9 +50,6 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
             $data['msg_success'] = $this->session->data['success'];
             $this->cache->delete('payment_transbank_onepay');
             $this->transbankSdkOnepay->logInfo('Configuracion guardada correctamente');
-            //this line return to market/extension page on after save config
-            //$this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
-            //return;
         }
 
         $this->document->setTitle($this->language->get('heading_title'));
@@ -161,7 +159,32 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 			$data[self::PAYMENT_TRANSBANK_ONEPAY_STATUS] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_STATUS];
 		} else {
 			$data[self::PAYMENT_TRANSBANK_ONEPAY_STATUS] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_STATUS);
-		}
+        }
+
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID];
+		} else {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID);
+        }
+
+        //load all order status
+		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+
+        //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID, choose the default value for status processing
+        if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID]) <= 0) {
+            foreach ($data['order_statuses'] as $order_status) {
+                if (trim(strtolower($order_status['name'])) == 'processing') {
+                    $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID] = $order_status['order_status_id'];
+                    break;
+                }
+            }
+        }
+
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER] = intval($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER]);
+		} else {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER] = intval($this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER));
+        }
 
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');

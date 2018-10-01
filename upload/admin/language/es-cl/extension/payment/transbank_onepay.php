@@ -16,7 +16,9 @@ $_['entry_transbank_onepay_apikey_live'] = 'APIKey Producción';
 $_['entry_transbank_onepay_shared_secret_live'] = 'Shared Secret Producción';
 $_['entry_transbank_onepay_logo_url'] = 'Url del logo del comercio';
 
-$_['entry_status'] = 'Status';
+$_['entry_status'] = 'Estado';
+$_['entry_order_status'] = 'Estado de la orden pagada';
+$_['entry_sort_order'] = 'Orden en la sección de pago';
 
 // Error
 $_['error_permission'] = 'Warning: You do not have permission to modify payment!';
