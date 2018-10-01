@@ -8,13 +8,13 @@
 class ControllerExtensionPaymentTransbankOnepay extends Controller {
 
     //constant for keys configurations
-    const payment_transbank_onepay_environment = 'payment_transbank_onepay_environment';
-    const payment_transbank_onepay_apikey_test = 'payment_transbank_onepay_apikey_test';
-    const payment_transbank_onepay_shared_secret_test = 'payment_transbank_onepay_shared_secret_test';
-    const payment_transbank_onepay_apikey_live = 'payment_transbank_onepay_apikey_live';
-    const payment_transbank_onepay_shared_secret_live = 'payment_transbank_onepay_shared_secret_live';
-    const payment_transbank_onepay_logo_url = 'payment_transbank_onepay_logo_url';
-    const payment_transbank_onepay_status = 'payment_transbank_onepay_status';
+    const PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT = 'payment_transbank_onepay_environment';
+    const PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST = 'payment_transbank_onepay_apikey_test';
+    const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST = 'payment_transbank_onepay_shared_secret_test';
+    const PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE = 'payment_transbank_onepay_apikey_live';
+    const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE = 'payment_transbank_onepay_shared_secret_live';
+    const PAYMENT_TRANSBANK_ONEPAY_LOGO_URL = 'payment_transbank_onepay_logo_url';
+    const PAYMENT_TRANSBANK_ONEPAY_STATUS = 'payment_transbank_onepay_status';
 
     private $error = array();
     private $transbankSdkOnepay = null;
@@ -62,38 +62,38 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 			$data['error_warning'] = '';
 		}
 
-		if (isset($this->error[self::payment_transbank_onepay_environment])) {
-			$data['error_transbank_onepay_environment'] = $this->error[self::payment_transbank_onepay_environment];
+		if (isset($this->error[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT])) {
+			$data['error_transbank_onepay_environment'] = $this->error[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT];
 		} else {
 			$data['error_transbank_onepay_environment'] = '';
 		}
 
-		if (isset($this->error[self::payment_transbank_onepay_apikey_test])) {
-			$data['error_transbank_onepay_apikey_test'] = $this->error[self::payment_transbank_onepay_apikey_test];
+		if (isset($this->error[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST])) {
+			$data['error_transbank_onepay_apikey_test'] = $this->error[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST];
 		} else {
 			$data['error_transbank_onepay_apikey_test'] = '';
 		}
 
-		if (isset($this->error[self::payment_transbank_onepay_shared_secret_test])) {
-			$data['error_transbank_onepay_shared_secret_test'] = $this->error[self::payment_transbank_onepay_shared_secret_test];
+		if (isset($this->error[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST])) {
+			$data['error_transbank_onepay_shared_secret_test'] = $this->error[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST];
 		} else {
 			$data['error_transbank_onepay_shared_secret_test'] = '';
         }
 
-        if (isset($this->error[self::payment_transbank_onepay_apikey_live])) {
-			$data['error_transbank_onepay_apikey_live'] = $this->error[self::payment_transbank_onepay_apikey_live];
+        if (isset($this->error[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE])) {
+			$data['error_transbank_onepay_apikey_live'] = $this->error[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE];
 		} else {
 			$data['error_transbank_onepay_apikey_live'] = '';
 		}
 
-		if (isset($this->error[self::payment_transbank_onepay_shared_secret_live])) {
-			$data['error_transbank_onepay_shared_secret_live'] = $this->error[self::payment_transbank_onepay_shared_secret_live];
+		if (isset($this->error[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE])) {
+			$data['error_transbank_onepay_shared_secret_live'] = $this->error[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE];
 		} else {
 			$data['error_transbank_onepay_shared_secret_live'] = '';
 		}
 
-		if (isset($this->error[self::payment_transbank_onepay_logo_url])) {
-			$data['error_transbank_onepay_logo_url'] = $this->error[self::payment_transbank_onepay_logo_url];
+		if (isset($this->error[self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL])) {
+			$data['error_transbank_onepay_logo_url'] = $this->error[self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL];
 		} else {
 			$data['error_transbank_onepay_logo_url'] = '';
         }
@@ -121,46 +121,46 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 
         $data['action_diagnostic_pdf'] = $this->url->link('extension/payment/transbank_onepay', 'user_token=' . $this->session->data['user_token'] . '&diagnostic_pdf=true', true);
 
-		if (isset($this->request->post[self::payment_transbank_onepay_environment])) {
-			$data[self::payment_transbank_onepay_environment] = $this->request->post[self::payment_transbank_onepay_environment];
+		if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT];
 		} else {
-			$data[self::payment_transbank_onepay_environment] = $this->config->get(self::payment_transbank_onepay_environment);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT);
 		}
 
-		if (isset($this->request->post[self::payment_transbank_onepay_apikey_test])) {
-			$data[self::payment_transbank_onepay_apikey_test] = $this->request->post[self::payment_transbank_onepay_apikey_test];
+		if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST];
 		} else {
-			$data[self::payment_transbank_onepay_apikey_test] = $this->config->get(self::payment_transbank_onepay_apikey_test);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST);
 		}
 
-		if (isset($this->request->post[self::payment_transbank_onepay_shared_secret_test])) {
-			$data[self::payment_transbank_onepay_shared_secret_test] = $this->request->post[self::payment_transbank_onepay_shared_secret_test];
+		if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST];
 		} else {
-			$data[self::payment_transbank_onepay_shared_secret_test] = $this->config->get(self::payment_transbank_onepay_shared_secret_test);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST);
 		}
 
-        if (isset($this->request->post[self::payment_transbank_onepay_apikey_live])) {
-			$data[self::payment_transbank_onepay_apikey_live] = $this->request->post[self::payment_transbank_onepay_apikey_live];
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE];
 		} else {
-			$data[self::payment_transbank_onepay_apikey_live] = $this->config->get(self::payment_transbank_onepay_apikey_live);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE);
 		}
 
-		if (isset($this->request->post[self::payment_transbank_onepay_shared_secret_live])) {
-			$data[self::payment_transbank_onepay_shared_secret_live] = $this->request->post[self::payment_transbank_onepay_shared_secret_live];
+		if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE];
 		} else {
-			$data[self::payment_transbank_onepay_shared_secret_live] = $this->config->get(self::payment_transbank_onepay_shared_secret_live);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE);
 		}
 
-        if (isset($this->request->post[self::payment_transbank_onepay_logo_url])) {
-			$data[self::payment_transbank_onepay_logo_url] = $this->request->post[self::payment_transbank_onepay_logo_url];
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL];
 		} else {
-			$data[self::payment_transbank_onepay_logo_url] = $this->config->get(self::payment_transbank_onepay_logo_url);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL);
 		}
 
-		if (isset($this->request->post[self::payment_transbank_onepay_status])) {
-			$data[self::payment_transbank_onepay_status] = $this->request->post[self::payment_transbank_onepay_status];
+		if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_STATUS])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_STATUS] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_STATUS];
 		} else {
-			$data[self::payment_transbank_onepay_status] = $this->config->get(self::payment_transbank_onepay_status);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_STATUS] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_STATUS);
 		}
 
 		$data['header'] = $this->load->controller('common/header');
@@ -176,22 +176,22 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 			$this->error['warning'] = $this->language->get('error_permission');
         }
 
-		if (!$this->request->post[self::payment_transbank_onepay_environment]) {
-			$this->error[self::payment_transbank_onepay_environment] = $this->language->get('error_transbank_onepay_environment');
+		if (!$this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT]) {
+			$this->error[self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT] = $this->language->get('error_transbank_onepay_environment');
 		}
 
-		if (!$this->request->post[self::payment_transbank_onepay_apikey_test]) {
-			$this->error[self::payment_transbank_onepay_apikey_test] = $this->language->get('error_transbank_onepay_apikey_test');
+		if (!$this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST]) {
+			$this->error[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST] = $this->language->get('error_transbank_onepay_apikey_test');
 		}
-		if (!$this->request->post[self::payment_transbank_onepay_shared_secret_test]) {
-			$this->error[self::payment_transbank_onepay_shared_secret_test] = $this->language->get('error_transbank_onepay_shared_secret_test');
+		if (!$this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST]) {
+			$this->error[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST] = $this->language->get('error_transbank_onepay_shared_secret_test');
 		}
 
-		if (!$this->request->post[self::payment_transbank_onepay_apikey_live]) {
-			$this->error[self::payment_transbank_onepay_apikey_live] = $this->language->get('error_transbank_onepay_apikey_live');
+		if (!$this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE]) {
+			$this->error[self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE] = $this->language->get('error_transbank_onepay_apikey_live');
 		}
-		if (!$this->request->post[self::payment_transbank_onepay_shared_secret_live]) {
-			$this->error[self::payment_transbank_onepay_shared_secret_live] = $this->language->get('error_transbank_onepay_shared_secret_live');
+		if (!$this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE]) {
+			$this->error[self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE] = $this->language->get('error_transbank_onepay_shared_secret_live');
         }
 
 		return !$this->error;

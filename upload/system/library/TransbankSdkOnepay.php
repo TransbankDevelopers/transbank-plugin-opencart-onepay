@@ -20,21 +20,21 @@ use \Transbank\Onepay\Exceptions\RefundCreateException;
  */
 class TransbankSdkOnepay {
 
-    const plugin_version = '1.0.0'; //version of plugin payment
-    const app_key = '647E0914-DE74-11E7-80C1-9A214CF093AE'; //app key for opencart
-    const log_filename = 'onepay-log.log';
+    const PLUGIN_VERSION = '1.0.0'; //version of plugin payment
+    const APP_KEY = '647E0914-DE74-11E7-80C1-9A214CF093AE'; //app key for opencart
+    const LOG_FILENAME = 'onepay-log.log';
 
     //constant for keys configurations
-    const payment_transbank_onepay_environment = 'payment_transbank_onepay_environment';
-    const payment_transbank_onepay_apikey_test = 'payment_transbank_onepay_apikey_test';
-    const payment_transbank_onepay_shared_secret_test = 'payment_transbank_onepay_shared_secret_test';
-    const payment_transbank_onepay_apikey_live = 'payment_transbank_onepay_apikey_live';
-    const payment_transbank_onepay_shared_secret_live = 'payment_transbank_onepay_shared_secret_live';
-    const payment_transbank_onepay_logo_url = 'payment_transbank_onepay_logo_url';
-    const payment_transbank_onepay_status = 'payment_transbank_onepay_status';
+    const PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT = 'payment_transbank_onepay_environment';
+    const PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST = 'payment_transbank_onepay_apikey_test';
+    const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST = 'payment_transbank_onepay_shared_secret_test';
+    const PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE = 'payment_transbank_onepay_apikey_live';
+    const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE = 'payment_transbank_onepay_shared_secret_live';
+    const PAYMENT_TRANSBANK_ONEPAY_LOGO_URL = 'payment_transbank_onepay_logo_url';
+    const PAYMENT_TRANSBANK_ONEPAY_STATUS = 'payment_transbank_onepay_status';
 
     public function __construct() {
-        $this->log = new Log(self::log_filename);
+        $this->log = new Log(self::LOG_FILENAME);
     }
 
     public function init($config_) {
@@ -42,33 +42,33 @@ class TransbankSdkOnepay {
     }
 
     public function getEnvironment() {
-        return $this->config->get(self::payment_transbank_onepay_environment);
+        return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT);
     }
 
     public function getApiKey() {
         $environment = $this->getEnvironment();
         if ($environment == 'LIVE') {
-            return $this->config->get(self::payment_transbank_onepay_apikey_live);
+            return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_LIVE);
         } else {
-            return $this->config->get(self::payment_transbank_onepay_apikey_test);
+            return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST);
         }
     }
 
     public function getSharedSecret() {
         $environment = $this->getEnvironment();
         if ($environment == 'LIVE') {
-            return $this->config->get(self::payment_transbank_onepay_shared_secret_live);
+            return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE);
         } else {
-            return $this->config->get(self::payment_transbank_onepay_shared_secret_test);
+            return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST);
         }
     }
 
     public function getLogoUrl() {
-        return $this->config->get(self::payment_transbank_onepay_logo_url);
+        return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_LOGO_URL);
     }
 
     public function getPluginVersion() {
-        return self::plugin_version;
+        return self::PLUGIN_VERSION;
     }
 
     public function getSoftwareName() {
@@ -80,7 +80,7 @@ class TransbankSdkOnepay {
     }
 
     public function getLogfileLocation() {
-        return DIR_LOGS . self::log_filename;
+        return DIR_LOGS . self::LOG_FILENAME;
     }
 
     public function getConfigArray() {
@@ -113,7 +113,7 @@ class TransbankSdkOnepay {
         $options = new Options($apiKey, $sharedSecret);
 
         if ($environment == 'LIVE') {
-            $options->setAppKey(self::app_key);
+            $options->setAppKey(self::APP_KEY);
         }
 
         return $options;
