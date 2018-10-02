@@ -20,6 +20,7 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED = 'payment_transbank_onepay_order_status_id_failed';
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED = 'payment_transbank_onepay_order_status_id_rejected';
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED = 'payment_transbank_onepay_order_status_id_cancelled';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_CONFIGURED = 'payment_transbank_onepay_order_status_configured';
 
     private $error = array();
     private $transbankSdkOnepay = null;
@@ -47,8 +48,28 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
             return;
         }
 
+        //load all order status
+		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+
 		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-			$this->model_setting_setting->editSetting('payment_transbank_onepay', $this->request->post);
+
+            //create un array of order status original with order status configured by user, used for show it in pdf of diagnostic
+            $dataPost = $this->request->post;
+            $keyBase = 'payment_transbank_onepay_order_status_id_';
+            $orderStatusValues = array();
+
+            foreach ($dataPost as $key => $value) {
+                if (strpos($key, $keyBase) !== false) {
+                    $orderStatusNameOriginal = substr($key, strlen($keyBase), strlen($key));
+                    $orderStatusNameConfiguredByUser = $this->getOrderStatusName($data['order_statuses'], $value);
+                    array_push($orderStatusValues, $orderStatusNameOriginal . '(' . $value . ',' . $orderStatusNameConfiguredByUser . ')');
+                }
+            }
+
+            //add PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_CONFIGURED to dataPost to save in config system
+            $dataPost[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_CONFIGURED] = implode(',', $orderStatusValues);
+
+			$this->model_setting_setting->editSetting('payment_transbank_onepay', $dataPost);
             $this->session->data['success'] = $this->language->get('text_success');
             $data['msg_success'] = $this->session->data['success'];
             $this->cache->delete('payment_transbank_onepay');
@@ -194,27 +215,24 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED);
         }
 
-        //load all order status
-		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
-
         //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID, choose the default value for status processing
         if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID]) <= 0) {
-            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID] = $this->getIdOrderStatus($data['order_statuses'], 'processing');
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID] = $this->getOrderStatusId($data['order_statuses'], 'processing');
         }
 
         //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED, choose the default value for status failed
         if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED]) <= 0) {
-            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED] = $this->getIdOrderStatus($data['order_statuses'], 'failed');
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED] = $this->getOrderStatusId($data['order_statuses'], 'failed');
         }
 
         //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED, choose the default value for status denied
         if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED]) <= 0) {
-            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED] = $this->getIdOrderStatus($data['order_statuses'], 'denied');
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED] = $this->getOrderStatusId($data['order_statuses'], 'denied');
         }
 
         //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED, choose the default value for status canceled
         if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED]) <= 0) {
-            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED] = $this->getIdOrderStatus($data['order_statuses'], 'canceled');
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED] = $this->getOrderStatusId($data['order_statuses'], 'canceled');
         }
 
 		$data['header'] = $this->load->controller('common/header');
@@ -251,13 +269,22 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 		return !$this->error;
     }
 
-    private function getIdOrderStatus($orderStatuses, $status) {
+    private function getOrderStatusId($orderStatuses, $statusName) {
         foreach ($orderStatuses as $orderStatus) {
-            if (trim(strtolower($orderStatus['name'])) == $status) {
+            if (trim(strtolower($orderStatus['name'])) == $statusName) {
                 return $orderStatus['order_status_id'];
             }
         }
         return 0;
+    }
+
+    private function getOrderStatusName($orderStatuses, $statusId) {
+        foreach ($orderStatuses as $orderStatus) {
+            if (intval($orderStatus['order_status_id']) == intval($statusId)) {
+                return $orderStatus['name'];
+            }
+        }
+        return '';
     }
 }
 ?>
