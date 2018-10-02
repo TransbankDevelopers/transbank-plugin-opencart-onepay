@@ -93,17 +93,17 @@ class DiagnosticPDF extends FPDF {
         $this->Ln(8);
         // Move to the right
         $this->Cell(10);
-        $this->Cell(20, 8, 'Merchant info');
+        $this->Cell(10, 8,'Merchant info');
         $this->Ln(8);
-        $api_key = $this->moduleInfo->getApiKey();
-        $env = $this->moduleInfo->getEnvironment();
         $this->Ln(8);
-
-        $this->Cell(20);
-        $this->Cell(20,8,'ApiKey: ' . $api_key, 0,0,'L');
+        $this->Cell(15);
+        $this->Cell(15,8,'ApiKey: ' . $this->moduleInfo->getApiKey(), 0,0,'L');
         $this->Ln(8);
-        $this->Cell(20);
-        $this->Cell(20,8,'Environment: ' . $env, 0,0,'L');
+        $this->Cell(15);
+        $this->Cell(15,8,'Environment: ' . $this->moduleInfo->getEnvironment(), 0,0,'L');
+        $this->Ln(8);
+        $this->Cell(15);
+        $this->Cell(15,8,'Status Order: ' . $this->moduleInfo->getStatusConfigured(), 0,0,'L');
         $this->Ln(8);
     }
 
