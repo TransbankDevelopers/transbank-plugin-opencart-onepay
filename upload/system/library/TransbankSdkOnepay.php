@@ -37,6 +37,7 @@ class TransbankSdkOnepay {
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED = 'payment_transbank_onepay_order_status_id_failed';
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED = 'payment_transbank_onepay_order_status_id_rejected';
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED = 'payment_transbank_onepay_order_status_id_cancelled';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_CONFIGURED = 'payment_transbank_onepay_order_status_configured';
 
     public function __construct($config) {
         $this->config = $config;
@@ -85,20 +86,24 @@ class TransbankSdkOnepay {
         return DIR_LOGS . self::LOG_FILENAME;
     }
 
-    public function getStatusIdPaid() {
+    public function getOrderStatusIdPaid() {
         return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID);
     }
 
-    public function getStatusIdFailed() {
+    public function getOrderStatusIdFailed() {
         return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED);
     }
 
-    public function getStatusIdRejected() {
+    public function getOrderStatusIdRejected() {
         return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED);
     }
 
-    public function getStatusIdCancelled() {
+    public function getOrderStatusIdCancelled() {
         return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED);
+    }
+
+    public function getStatusConfigured() {
+        return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_CONFIGURED);
     }
 
     /**
@@ -183,10 +188,10 @@ class TransbankSdkOnepay {
 
         $options = $this->getOnepayOptions();
 
-        $orderStatusPaid = $this->getStatusIdPaid();
-        $orderStatusFailed = $this->getStatusIdFailed();
-        $orderStatusRejected = $this->getStatusIdRejected();
-        $orderStatusCancelled = $this->getStatusIdCancelled();
+        $orderStatusPaid = $this->getOrderStatusIdPaid();
+        $orderStatusFailed = $this->getOrderStatusIdFailed();
+        $orderStatusRejected = $this->getOrderStatusIdRejected();
+        $orderStatusCancelled = $this->getOrderStatusIdCancelled();
 
         $detail = "<b>Estado:</b> {$status}
                 <br><b>OCC:</b> {$occ}
@@ -240,7 +245,9 @@ class TransbankSdkOnepay {
                                             <br><b>Monto cuota:</b> {$installmentsAmount}";
                     }
 
-                    $metadata = array('amount' => $amount,
+                    $metadata = array('orderStatusOriginal' => 'paid',
+                                    'orderStatus' => $orderStatusPaid,
+                                    'amount' => $amount,
                                     'authorizationCode' => $authorizationCode,
                                     'occ' => $occ,
                                     'externalUniqueNumber' => $externalUniqueNumber,
@@ -286,7 +293,7 @@ class TransbankSdkOnepay {
      * create the diagnostic pdf
      */
     public function createDiagnosticPdf() {
-        //phpinfo();
+
         $pdf = new DiagnosticPDF($this);
 
         $pdf->AliasNbPages();
