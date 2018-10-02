@@ -32,8 +32,11 @@ class TransbankSdkOnepay {
     const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE = 'payment_transbank_onepay_shared_secret_live';
     const PAYMENT_TRANSBANK_ONEPAY_LOGO_URL = 'payment_transbank_onepay_logo_url';
     const PAYMENT_TRANSBANK_ONEPAY_STATUS = 'payment_transbank_onepay_status';
-    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID = 'payment_transbank_onepay_order_status_id';
     const PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER = 'payment_transbank_onepay_sort_order';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID = 'payment_transbank_onepay_order_status_id_paid';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED = 'payment_transbank_onepay_order_status_id_failed';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED = 'payment_transbank_onepay_order_status_id_rejected';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED = 'payment_transbank_onepay_order_status_id_cancelled';
 
     public function __construct($config) {
         $this->config = $config;
@@ -82,16 +85,20 @@ class TransbankSdkOnepay {
         return DIR_LOGS . self::LOG_FILENAME;
     }
 
-    public function getConfigArray() {
-        return array(
-                    'environment' => $this->getEnvironment(),
-                    'apiKey' => $this->getApiKey(),
-                    'sharedSecret' => $this->getSharedSecret(),
-                    'logoUrl' => $this->getLogoUrl(),
-                    'moduleVersion' => $this->getPluginVersion(),
-                    'softwareVersion' => $this->getSoftwareVersion(),
-                    'logfileLocation' => $this->getLogfileLocation()
-                );
+    public function getStatusIdPaid() {
+        return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID);
+    }
+
+    public function getStatusIdFailed() {
+        return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED);
+    }
+
+    public function getStatusIdRejected() {
+        return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED);
+    }
+
+    public function getStatusIdCancelled() {
+        return $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED);
     }
 
     /**
@@ -142,8 +149,6 @@ class TransbankSdkOnepay {
                 $cart->add($item);
             }
 
-            $this->logInfo('cart: ' . json_encode($cart));
-
             $transaction = Transaction::create($cart, $channel, $options);
 
             $amount = $cart->getTotal();
@@ -161,15 +166,14 @@ class TransbankSdkOnepay {
                 'qrCodeAsBase64' => $transaction->getQrCodeAsBase64()
             );
 
-        } catch (TransbankException $transbank_exception) {
-            return $this->failCreate($transbank_exception->getMessage());
+        } catch (TransbankException $transbankException) {
+            return $this->failCreate($transbankException->getMessage());
         }
     }
 
     private function failCreate($message) {
         $this->logError('Creacion de transacción fallida: ' . $message);
-        $response = array('error' => $message);
-        return $response;
+        return array('error' => true, 'message' => $message);
     }
 
     /**
@@ -179,16 +183,21 @@ class TransbankSdkOnepay {
 
         $options = $this->getOnepayOptions();
 
-        $orderStatusComplete = 'processing';
-        $orderStatusCanceled = 'canceled';
-        $orderStatusRejected = 'denied';
+        $orderStatusPaid = $this->getStatusIdPaid();
+        $orderStatusFailed = $this->getStatusIdFailed();
+        $orderStatusRejected = $this->getStatusIdRejected();
+        $orderStatusCancelled = $this->getStatusIdCancelled();
 
-        $metadata = "<br><b>Estado:</b> {$status}
-                     <br><b>OCC:</b> {$occ}
-                     <br><b>N&uacute;mero de carro:</b> {$externalUniqueNumber}";
+        $detail = "<b>Estado:</b> {$status}
+                <br><b>OCC:</b> {$occ}
+                <br><b>N&uacute;mero de carro:</b> {$externalUniqueNumber}";
+
+        $metadata = array('status' => $status,
+                        'occ' => $occ,
+                        'externalUniqueNumber' => $externalUniqueNumber);
 
         if ($status == null || $occ == null || $externalUniqueNumber == null) {
-            return $this->failCommit($orderStatusCanceled, 'Parametros inválidos', $metadata);
+            return $this->failCommit($orderStatusCancelled, 'Parametros inválidos', $detail, $metadata);
         }
 
         if ($status == 'PRE_AUTHORIZED') {
@@ -208,7 +217,7 @@ class TransbankSdkOnepay {
                     $issuedAt = $transactionCommitResponse->getIssuedAt();
                     $dateTransaction = date('Y-m-d H:i:s', $issuedAt);
 
-                    $message = "<h3>Detalles del pago con Onepay:</h3>
+                    $detail = "<b>Detalles del pago con Onepay:</b>
                                 <br><b>Fecha de Transacci&oacute;n:</b> {$dateTransaction}
                                 <br><b>OCC:</b> {$occ}
                                 <br><b>N&uacute;mero de carro:</b> {$externalUniqueNumber}
@@ -221,46 +230,46 @@ class TransbankSdkOnepay {
 
                     if ($installmentsNumber == 1) {
 
-                        $message = $message . "<br><b>N&uacute;mero de cuotas:</b> Sin cuotas";
+                        $detail = $detail . "<br><b>N&uacute;mero de cuotas:</b> Sin cuotas";
 
                     } else {
 
                         $installmentsAmount = $transactionCommitResponse->getInstallmentsAmount();
 
-                        $message = $message . "<br><b>N&uacute;mero de cuotas:</b> {$installmentsNumber}
-                                                <br><b>Monto cuota:</b> {$installmentsAmount}";
+                        $detail = $detail . "<br><b>N&uacute;mero de cuotas:</b> {$installmentsNumber}
+                                            <br><b>Monto cuota:</b> {$installmentsAmount}";
                     }
 
-                    $metadata2 = array('amount' => $amount,
+                    $metadata = array('amount' => $amount,
                                     'authorizationCode' => $authorizationCode,
                                     'occ' => $occ,
                                     'externalUniqueNumber' => $externalUniqueNumber,
                                     'issuedAt' => $issuedAt);
 
-                    return $this->successCommit($orderStatusComplete, $message, $metadata2);
+                    return $this->successCommit($orderStatusPaid, 'Pago exitoso', $detail, $metadata);
                 } else {
-                    return $this->failCommit($orderStatusRejected, 'Tu pago ha fallado. Vuelve a intentarlo más tarde.', $metadata);
+                    return $this->failCommit($orderStatusFailed, 'Tu pago ha fallado. Vuelve a intentarlo más tarde.', $detail, $metadata);
                 }
 
-            } catch (TransbankException $transbank_exception) {
-                return $this->failCommit($orderStatusCanceled, $transbank_exception->getMessage(), $metadata);
+            } catch (TransbankException $transbankException) {
+                return $this->failCommit($orderStatusFailed, $transbankException->getMessage(), $detail, $metadata);
             }
 
         } else if($status == 'REJECTED') {
-            return $this->failCommit($orderStatusRejected, 'Tu pago ha fallado. Pago rechazado', $metadata);
+            return $this->failCommit($orderStatusRejected, 'Tu pago ha fallado. Pago rechazado.', $detail, $metadata);
         } else {
-            return $this->failCommit($orderStatusCanceled, 'Tu pago ha fallado. Compra cancelada', $metadata);
+            return $this->failCommit($orderStatusCancelled, 'Tu pago ha fallado. Compra cancelada.', $detail, $metadata);
         }
     }
 
-    private function successCommit($orderStatus, $message, $metadata) {
-        $this->logInfo('Confirmación de transacción exitosa: orderStatus: ' . $orderStatus . ', ' . $message);
-        return array('success' => true, 'orderStatus' => $orderStatus, 'message' => $message, 'metadata' => $metadata);
+    private function successCommit($orderStatusId, $message, $detail, $metadata) {
+        $this->logInfo('Confirmación de transacción exitosa: orderStatusId: ' . $orderStatusId . ', ' . json_encode($metadata));
+        return array('success' => true, 'orderStatusId' => $orderStatusId, 'message' => $message, 'detail' => $detail, 'metadata' => $metadata);
     }
 
-    private function failCommit($orderStatus, $message, $metadata) {
-        $this->logError('Confirmación de transacción fallida: orderStatus: ' . $orderStatus . ', ' . $message);
-        return array('error' => true, 'orderStatus' => $orderStatus, 'message' => $message, 'metadata' => $metadata);
+    private function failCommit($orderStatusId, $message, $detail, $metadata) {
+        $this->logError('Confirmación de transacción fallida: orderStatusId: ' . $orderStatusId . ', ' . json_encode($metadata));
+        return array('error' => true, 'orderStatusId' => $orderStatusId, 'message' => $message, 'detail' => $detail, 'metadata' => $metadata);
     }
 
     /**

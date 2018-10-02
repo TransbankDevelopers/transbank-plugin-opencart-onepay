@@ -24,17 +24,25 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         return new TransbankSdkOnepay($this->config);
     }
 
+    /**
+     * method default for handle the config of onepay modal checkout
+     */
 	public function index() {
 
 		$this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
 
-        $data['action_create'] = $this->url->link('extension/payment/transbank_onepay/createTransaction', '', true);
-        $data['action_commit'] = $this->url->link('extension/payment/transbank_onepay/commitTransaction', '', true);
+        //create link to this controller method createTransaction
+        $data['action_create'] = $this->url->link('extension/payment/transbank_onepay/createTransaction', '', 'SSL');
+        //create link to this controller method commitTransaction
+        $data['action_commit'] = $this->url->link('extension/payment/transbank_onepay/commitTransaction', '', 'SSL');
         $data['logo_url'] = $this->transbankSdkOnepay->getLogoUrl();
 
         return $this->load->view('extension/payment/transbank_onepay', $data);
     }
 
+    /**
+     * method for handle the transaction create
+     */
     public function createTransaction() {
 
         $channel = isset($this->request->post['channel']) ? $this->request->post['channel'] : null;
@@ -88,6 +96,9 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         $this->response->setOutput(json_encode($response));
     }
 
+    /**
+     * method for handle the transaction commit
+     */
     public function commitTransaction() {
 
         $status = isset($this->request->get['status']) ? $this->request->get['status'] : null;
@@ -97,39 +108,22 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         $this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
         $response = $this->transbankSdkOnepay->commitTransaction($status, $occ, $externalUniqueNumber);
 
-        $this->transbankSdkOnepay->logInfo('response: ' . json_encode($response));
-
         $data = $this->session->data;
-        $metadata = $response['metadata'];
-        $orderStatus = $this->getIdOrderStatus($response['orderStatus']);
-        $this->model_checkout_order->addOrderHistory($data['order_id'], $orderStatus, $metadata, false);
+        $orderId = $data['order_id'];
+        $message = $response['message'];
+        $detail = $response['detail'];
+        $metadata = json_encode($response['metadata']);
+        $orderStatusId = $response['orderStatusId'];
+        $orderComment = $message . '<hr>' . $detail . '<span style="display:none;">json::' . $metadata . '</span>';
+        $orderNotifyToUser = true;
+
+        $this->model_checkout_order->addOrderHistory($orderId, $orderStatusId, $orderComment, $orderNotifyToUser);
 
         if (isset($response['error'])) {
-            $this->session->data['error'] = $response['error'];
-            $this->response->redirect($this->url->link('checkout/checkout', '', 'SSL'));
+            $this->response->redirect($this->url->link('checkout/failure', '', 'SSL'));
         } else {
             $this->response->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), 'SSL'));
         }
-    }
-
-    private function getIdOrderStatus($status) {
-
-        $value = null;
-
-        //load all order status
-        $order_statuses = $this->model_localisation_order_status->getOrderStatuses();
-
-        foreach ($order_statuses as $order_status) {
-            $this->transbankSdkOnepay->logInfo($status . ' - check status: ' . json_encode($order_status));
-            if (trim(strtolower($order_status['name'])) == $status) {
-                $value = $order_status['order_status_id'];
-                break;
-            }
-        }
-
-        $this->transbankSdkOnepay->logInfo('return status: ' . $value);
-
-        return $value;
     }
 }
 ?>
