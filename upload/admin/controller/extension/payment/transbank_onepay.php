@@ -15,8 +15,11 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
     const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_LIVE = 'payment_transbank_onepay_shared_secret_live';
     const PAYMENT_TRANSBANK_ONEPAY_LOGO_URL = 'payment_transbank_onepay_logo_url';
     const PAYMENT_TRANSBANK_ONEPAY_STATUS = 'payment_transbank_onepay_status';
-    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID = 'payment_transbank_onepay_order_status_id';
     const PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER = 'payment_transbank_onepay_sort_order';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID = 'payment_transbank_onepay_order_status_id_paid';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED = 'payment_transbank_onepay_order_status_id_failed';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED = 'payment_transbank_onepay_order_status_id_rejected';
+    const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED = 'payment_transbank_onepay_order_status_id_cancelled';
 
     private $error = array();
     private $transbankSdkOnepay = null;
@@ -161,29 +164,57 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 			$data[self::PAYMENT_TRANSBANK_ONEPAY_STATUS] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_STATUS);
         }
 
-        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID])) {
-			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID];
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER] = intval($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER]);
 		} else {
-			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID);
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER] = intval($this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER));
+        }
+
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID];
+		} else {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID);
+        }
+
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED];
+		} else {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED);
+        }
+
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED];
+		} else {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED);
+        }
+
+        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED])) {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED] = $this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED];
+		} else {
+			$data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED] = $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED);
         }
 
         //load all order status
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
-        //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID, choose the default value for status processing
-        if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID]) <= 0) {
-            foreach ($data['order_statuses'] as $order_status) {
-                if (trim(strtolower($order_status['name'])) == 'processing') {
-                    $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID] = $order_status['order_status_id'];
-                    break;
-                }
-            }
+        //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID, choose the default value for status processing
+        if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID]) <= 0) {
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_PAID] = $this->getIdOrderStatus($data['order_statuses'], 'processing');
         }
 
-        if (isset($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER])) {
-			$data[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER] = intval($this->request->post[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER]);
-		} else {
-			$data[self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER] = intval($this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER));
+        //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED, choose the default value for status failed
+        if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED]) <= 0) {
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_FAILED] = $this->getIdOrderStatus($data['order_statuses'], 'failed');
+        }
+
+        //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED, choose the default value for status denied
+        if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED]) <= 0) {
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_REJECTED] = $this->getIdOrderStatus($data['order_statuses'], 'denied');
+        }
+
+        //if not seted PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED, choose the default value for status canceled
+        if (intval($data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED]) <= 0) {
+            $data[self::PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED] = $this->getIdOrderStatus($data['order_statuses'], 'canceled');
         }
 
 		$data['header'] = $this->load->controller('common/header');
@@ -218,6 +249,15 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         }
 
 		return !$this->error;
+    }
+
+    private function getIdOrderStatus($orderStatuses, $status) {
+        foreach ($orderStatuses as $orderStatus) {
+            if (trim(strtolower($orderStatus['name'])) == $status) {
+                return $orderStatus['order_status_id'];
+            }
+        }
+        return 0;
     }
 }
 ?>
