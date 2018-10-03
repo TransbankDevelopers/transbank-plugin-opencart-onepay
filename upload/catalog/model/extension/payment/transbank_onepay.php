@@ -6,8 +6,6 @@
  */
 class ModelExtensionPaymentTransbankOnepay extends Model {
 
-    const PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER = 'payment_transbank_onepay_sort_order';
-
     private $transbankSdkOnepay = null;
 
     private function loadResources() {
@@ -37,10 +35,10 @@ class ModelExtensionPaymentTransbankOnepay extends Model {
 
 		if ($status) {
             $method_data = array(
-                'code' => 'transbank_onepay',
+                'code' => TransbankSdkOnepay::PLUGIN_CODE,
                 'title' => $this->language->get('text_title'),
                 'terms' => '',
-                'sort_order' => $this->config->get(self::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER)
+                'sort_order' => $this->config->get(TransbankSdkOnepay::PAYMENT_TRANSBANK_ONEPAY_SORT_ORDER)
             );
         }
 

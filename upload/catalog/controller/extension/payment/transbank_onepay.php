@@ -6,7 +6,6 @@
  */
 class ControllerExtensionPaymentTransbankOnepay extends Controller {
 
-    private $error = array();
     private $transbankSdkOnepay = null;
 
     private function loadResources() {

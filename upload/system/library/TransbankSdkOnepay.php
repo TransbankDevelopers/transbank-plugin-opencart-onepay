@@ -21,10 +21,16 @@ use \Transbank\Onepay\Exceptions\RefundCreateException;
 class TransbankSdkOnepay {
 
     const PLUGIN_VERSION = '1.0.0'; //version of plugin payment
+    const PLUGIN_CODE = 'transbank_onepay'; //code of plugin for opencart
     const APP_KEY = '647E0914-DE74-11E7-80C1-9A214CF093AE'; //app key for opencart
-    const LOG_FILENAME = 'onepay-log.log'; //name of the log file
 
-    //constant for keys configurations
+    //constants for log handler
+    const LOG_FILENAME = 'onepay-log.log'; //name of the log file
+    const LOG_DEBUG_ENABLED = false; //enable or disable debug logs
+    const LOG_INFO_ENABLED = true; //enable or disable info logs
+    const LOG_ERROR_ENABLED = true; //enable or disable error logs
+
+    //constants for keys configurations
     const PAYMENT_TRANSBANK_ONEPAY_ENVIRONMENT = 'payment_transbank_onepay_environment';
     const PAYMENT_TRANSBANK_ONEPAY_APIKEY_TEST = 'payment_transbank_onepay_apikey_test';
     const PAYMENT_TRANSBANK_ONEPAY_SHARED_SECRET_TEST = 'payment_transbank_onepay_shared_secret_test';
@@ -139,7 +145,7 @@ class TransbankSdkOnepay {
             return $this->failCreate('Falta parámetro channel');
         }
 
-        if ($paymentMethod != 'transbank_onepay') {
+        if ($paymentMethod != self::PLUGIN_CODE) {
             return $this->failCreate('Método de pago no es Transbank Onepay');
         }
 
@@ -162,7 +168,7 @@ class TransbankSdkOnepay {
             $externalUniqueNumber = $transaction->getExternalUniqueNumber();
             $issuedAt = $transaction->getIssuedAt();
 
-            return array(
+            $response = array(
                 'amount' => $amount,
                 'occ' => $occ,
                 'ott' => $ott,
@@ -171,13 +177,17 @@ class TransbankSdkOnepay {
                 'qrCodeAsBase64' => $transaction->getQrCodeAsBase64()
             );
 
+            $this->logDebug('Transacción creada: ' . json_encode($response));
+
+            return $response;
+
         } catch (TransbankException $transbankException) {
             return $this->failCreate($transbankException->getMessage());
         }
     }
 
     private function failCreate($message) {
-        $this->logError('Creacion de transacción fallida: ' . $message);
+        $this->logError('Transacción fallida: ' . $message);
         return array('error' => true, 'message' => $message);
     }
 
@@ -270,12 +280,12 @@ class TransbankSdkOnepay {
     }
 
     private function successCommit($orderStatusId, $message, $detail, $metadata) {
-        $this->logInfo('Confirmación de transacción exitosa: orderStatusId: ' . $orderStatusId . ', ' . json_encode($metadata));
+        $this->logDebug('Transacción confirmada: orderStatusId: ' . $orderStatusId . ', ' . json_encode($metadata));
         return array('success' => true, 'orderStatusId' => $orderStatusId, 'message' => $message, 'detail' => $detail, 'metadata' => $metadata);
     }
 
     private function failCommit($orderStatusId, $message, $detail, $metadata) {
-        $this->logError('Confirmación de transacción fallida: orderStatusId: ' . $orderStatusId . ', ' . json_encode($metadata));
+        $this->logError('Transacción no confirmada: orderStatusId: ' . $orderStatusId . ', ' . json_encode($metadata));
         return array('error' => true, 'orderStatusId' => $orderStatusId, 'message' => $message, 'detail' => $detail, 'metadata' => $metadata);
     }
 
@@ -283,10 +293,7 @@ class TransbankSdkOnepay {
      * refund a transaction in onepay
      */
     public function refundTransaction() {
-
-        $options = $this->getOnepayOptions();
-
-        $this->log->write('refundTransaction: ' . json_encode($options));
+        //not implemented
     }
 
     /**
@@ -319,17 +326,30 @@ class TransbankSdkOnepay {
     }
 
     /**
+     * print DEBUG log
+     */
+    public function logDebug($msg) {
+        if (self::LOG_DEBUG_ENABLED) {
+            $this->log->write('DEBUG: ' . $msg);
+        }
+    }
+
+    /**
      * print INFO log
      */
     public function logInfo($msg) {
-        $this->log->write('INFO: ' . $msg);
+        if (self::LOG_INFO_ENABLED) {
+            $this->log->write('INFO: ' . $msg);
+        }
     }
 
     /**
      * print ERROR log
      */
     public function logError($msg) {
-        $this->log->write('ERROR: ' . $msg);
+        if (self::LOG_ERROR_ENABLED) {
+            $this->log->write('ERROR: ' . $msg);
+        }
     }
 }
 ?>
