@@ -122,11 +122,13 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 
         $this->session->data['transbank_onepay_result'] = '<div class="alert alert-success">' . $detail . '</div>';
 
+        $redirect = 'checkout/success';
+
         if (isset($response['error'])) {
-            $this->response->redirect($this->url->link('checkout/failure', 'language=' . $this->config->get('config_language'), 'SSL'));
-        } else {
-            $this->response->redirect($this->url->link('checkout/success', 'language=' . $this->config->get('config_language'), 'SSL'));
+            $redirect = 'checkout/failure';
         }
+
+        $this->response->redirect($this->url->link($redirect, 'language=' . $this->config->get('config_language'), 'SSL'));
     }
 }
 ?>
