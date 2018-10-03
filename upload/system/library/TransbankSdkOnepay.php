@@ -45,6 +45,8 @@ class TransbankSdkOnepay {
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_ID_CANCELLED = 'payment_transbank_onepay_order_status_id_cancelled';
     const PAYMENT_TRANSBANK_ONEPAY_ORDER_STATUS_CONFIGURED = 'payment_transbank_onepay_order_status_configured';
 
+    private $softwareVersion = '';
+
     public function __construct($config) {
         $this->config = $config;
         $this->log = new Log(self::LOG_FILENAME);
@@ -81,11 +83,15 @@ class TransbankSdkOnepay {
     }
 
     public function getSoftwareName() {
-        return 'Opencart';
+        return 'OpenCart';
+    }
+
+    public function setSoftwareVersion($softwareVersion) {
+        $this->softwareVersion = $softwareVersion;
     }
 
     public function getSoftwareVersion() {
-        return '3.x'; //TODO not implemented
+        return $this->softwareVersion;
     }
 
     public function getLogfileLocation() {

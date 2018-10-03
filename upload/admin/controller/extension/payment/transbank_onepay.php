@@ -29,6 +29,7 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         $this->transbankSdkOnepay = $this->getTransbankSdkOnepay();
 
         if (($this->request->server['REQUEST_METHOD'] == 'GET') && isset($this->request->get['diagnostic_pdf'])) {
+            $this->transbankSdkOnepay->setSoftwareVersion(VERSION);
             $this->transbankSdkOnepay->createDiagnosticPdf();
             return;
         }
