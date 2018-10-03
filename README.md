@@ -7,7 +7,17 @@ Este plugin de Opencart 3.x implementa el [SDK PHP de Onepay](https://github.com
 ## Dependencias
 
 * transbank/transbank-sdk
-* setasign/fpdf
+* fpdf
+
+**NOTA:** La versión del sdk de php se encuentra en el script config.sh
+
+## Preparar el proyecto para bajar dependencias
+
+    ./config.sh
+
+## Crear una versión del plugin empaquetado 
+
+    ./package.sh
 
 ## Instalación
 
