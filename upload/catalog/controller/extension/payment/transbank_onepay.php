@@ -118,6 +118,8 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 
         $this->model_checkout_order->addOrderHistory($orderId, $orderStatusId, $orderComment, $orderNotifyToUser);
 
+        $this->session->data['transbank_onepay_result'] = '<div class="alert alert-success">' . $detail . '</div>';
+
         if (isset($response['error'])) {
             $this->response->redirect($this->url->link('checkout/failure', 'language=' . $this->config->get('config_language'), 'SSL'));
         } else {
