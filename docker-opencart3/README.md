@@ -2,7 +2,7 @@
 
 #  Opencart Docker para desarrollo
 
-### Apache 2.4 + PHP 7.0 + MariaDB + Opencart 3.0.2-0-5
+### Apache 2.4 + PHP 7.0 + MariaDB + Opencart 3.0.2-0
 
 ### Requerimientos
 
@@ -28,12 +28,12 @@ Para instalar Opencart, hacer lo siguiente:
 ```
 
 ### Importante
-La primera vez es necesario corregir unos permisos del contenedor,ingresar al contenedor
+La primera vez es necesario corregir unos permisos del contenedor, ingresar al contenedor
 ```
 ./shell
 ```
 
-y ejecutar los comandos
+y ejecutar los siguientes comandos
 ```
 sudo chown -R bitnami:daemon /opt/bitnami/opencart/
 sudo chmod -R 775 /opt/bitnami/opencart/
@@ -48,7 +48,13 @@ sudo chmod -R 775 /opt/bitnami/opencart/
     user: user
     password: bitnami1
 
+### Archivo de logs del plugin
+
+```
+./shell
+tail -f /bitnami/opencart/system/storage/logs/onepay-log.log
+```
+    
 Basado en:
 
 [Imagen docker](https://hub.docker.com/r/bitnami/opencart)
-[Imagen docker base](https://hub.docker.com/r/bitnami/minideb-extras/)
