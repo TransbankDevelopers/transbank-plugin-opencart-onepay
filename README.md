@@ -19,7 +19,13 @@ Este plugin de Opencart 3.x implementa el [SDK PHP de Onepay](https://github.com
 
     ./package.sh
 
-## Instalación
+## Desarrollo
+
+Para apoyar el levantamiento rápido de un ambiente de desarrollo, hemos creado la especificación de contenedores a través de Docker Compose.
+
+Para usarlo seguir el siguiente [README](./docker-opencart3/README.md)
+
+## Instalación del plugin para un comercio
 
 El manual de instalación para el usuario final se encuentra disponible [acá](docs/INSTALLATION.md) o en PDF [acá](https://github.com/TransbankDevelopers/transbank-plugin-opencart-onepay/raw/master/docs/INSTALLATION.pdf
 )
