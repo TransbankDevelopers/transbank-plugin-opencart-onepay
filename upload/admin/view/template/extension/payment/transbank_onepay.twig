@@ -114,6 +114,77 @@
               </div>
             </div>
 
+            <div class="form-group row">
+                <label class="col-sm-2 control-label" for="input-sort-order">{{ entry_sort_order }}</label>
+                <div class="col-sm-10">
+                  <input type="text" name="payment_transbank_onepay_sort_order" value="{{ payment_transbank_onepay_sort_order }}" placeholder="{{ entry_sort_order }}" id="input-sort-order" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ entry_order_status }}</h3>
+              </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 control-label" for="input-order-status-paid">{{ entry_order_status_paid }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_transbank_onepay_order_status_id_paid" id="input-order-status-paid" class="form-control">
+                    {% for order_status in order_statuses %}
+                      {% if order_status.order_status_id == payment_transbank_onepay_order_status_id_paid %}
+                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                      {% else %}
+                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 control-label" for="input-order-status-failed">{{ entry_order_status_failed }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_transbank_onepay_order_status_id_failed" id="input-order-status-failed" class="form-control">
+                    {% for order_status in order_statuses %}
+                      {% if order_status.order_status_id == payment_transbank_onepay_order_status_id_failed %}
+                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                      {% else %}
+                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 control-label" for="input-order-status-rejected">{{ entry_order_status_rejected }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_transbank_onepay_order_status_id_rejected" id="input-order-status-rejected" class="form-control">
+                    {% for order_status in order_statuses %}
+                      {% if order_status.order_status_id == payment_transbank_onepay_order_status_id_rejected %}
+                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                      {% else %}
+                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 control-label" for="input-order-status-cancelled">{{ entry_order_status_cancelled }}</label>
+                <div class="col-sm-10">
+                  <select name="payment_transbank_onepay_order_status_id_cancelled" id="input-order-status-cancelled" class="form-control">
+                    {% for order_status in order_statuses %}
+                      {% if order_status.order_status_id == payment_transbank_onepay_order_status_id_cancelled %}
+                        <option value="{{ order_status.order_status_id }}" selected="selected">{{ order_status.name }}</option>
+                      {% else %}
+                        <option value="{{ order_status.order_status_id }}">{{ order_status.name }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </div>
+            </div>
+
             <div class="form-group">
                 <div class="col-sm-12">
                     <style>
