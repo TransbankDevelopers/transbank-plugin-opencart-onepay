@@ -5,7 +5,7 @@ $_['heading_title'] = 'Transbank Onepay';
 // Text
 $_['text_extension'] = 'Extensions';
 $_['text_success'] = 'Se han actualizado los parametros de configuración';
-$_['text_edit'] = 'Parametros de configuración';
+$_['text_edit'] = 'Parámetros de configuración';
 $_['text_transbank_onepay'] = '<img src="view/image/payment/transbank_onepay.png" alt="Transbank Onepay" title="Transbank Onepay" style="border: 1px solid #EEEEEE;" />';
 
 // Entry
