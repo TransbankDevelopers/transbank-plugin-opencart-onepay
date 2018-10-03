@@ -52,6 +52,8 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
 
         $orderInfo = $this->model_checkout_order->getOrder($data['order_id']);
 
+        $response = array();
+
         if ($orderInfo) {
 
             $items = array();
