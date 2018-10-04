@@ -23,7 +23,7 @@ Este plugin de Opencart 3.x implementa el [SDK PHP de Onepay](https://github.com
 
 Para apoyar el levantamiento rápido de un ambiente de desarrollo, hemos creado la especificación de contenedores a través de Docker Compose.
 
-Para usarlo seguir el siguiente [README](./docker-opencart3/README.md)
+Para usarlo seguir el siguiente [README Opencart 3.x](./docker-opencart3/README.md)
 
 ## Instalación del plugin para un comercio
 

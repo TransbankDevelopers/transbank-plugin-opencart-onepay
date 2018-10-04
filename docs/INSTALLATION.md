@@ -2,21 +2,21 @@
 
 ## Descripción
 
-Este plugin oficial ha sido creado para que puedas integrar Onepay fácilmente en tu comercio, basado en OpenCart 3.
+Este plugin oficial ha sido creado para que puedas integrar Onepay fácilmente en tu comercio, basado en OpenCart 3.x.
 
 ## Requisitos
 
-1. Debes tener instalado previamente Opencart 3
+1. Debes tener instalado previamente alguna versión de OpenCart 3
 
 ## Instalación del Plugin
 
 1. Dirígete a [https://github.com/TransbankDevelopers/transbank-plugin-opencart-onepay/releases](https://github.com/TransbankDevelopers/transbank-plugin-opencart-onepay/releases) y descarga la última versión disponible del plugin.
 
-  Una vez descargado el plugin, ingresa a la página de administración de Opencart (usualmente en http://misitio.com/admin, http://localhost/admin) y dirígete a Extensions / Installer, indicado a continuación:
+  Una vez descargado el plugin, ingresa a la página de administración de OpenCart (usualmente en http://misitio.com/admin, http://localhost/admin) y dirígete a Extensions / Installer, indicado a continuación:
 
   ![Paso 1](img/paso1.png)
   
-2. Haz click sobre el botón "Upload" y selecciona el archivo que descargaste en el paso anterior. Al instalar aparecerá que fue instalado exitosamente.
+2. Haz click sobre el botón "Upload" y selecciona el archivo que descargaste en el paso anterior. Al finalizar aparecerá que fue instalado exitosamente.
 
   ![Paso 2](img/paso2.png)
 
@@ -26,7 +26,7 @@ Este plugin posee un sitio de configuración que te permitirá ingresar credenci
 
 Para acceder a la configuración, debes seguir los siguientes pasos:
 
-1. Dirígete a la página de administración de Opencart (usualmente en http://misitio.com/admin, http://localhost/admin) e ingresa usuario y clave.
+1. Dirígete a la página de administración de OpenCart (usualmente en http://misitio.com/admin, http://localhost/admin) e ingresa usuario y clave.
 
 2. Dentro del sitio de administración dirígete a (Extensions / Extensions) y filtra por "Payments".
 
@@ -67,7 +67,21 @@ Para el ambiente de Integración, puedes utilizar las siguientes credenciales pa
 
 8. Además, puedes generar un documento de diagnóstico en caso que Transbank te lo pida. Para ello, haz click en "Generar PDF de Diagnóstico" y automáticamente se descargará dicho documento.
 
-  ![Paso 17](img/paso8.png)
+  ![Paso 8](img/paso8.png)
+
+### Refrescar el sistema de modificaciones de OpenCart
+
+9. Dirígete a (Extensions / Modifications) y selecciona el plugin "Transbank Onepay" indicado a continuación:
+
+  ![Paso 9](img/paso9.png)
+
+10. Con el plugin "Transbank Onepay" seleccionado presiona el botón "Clear" ![save](img/mod_clear.png)
+
+11. Con el plugin "Transbank Onepay" seleccionado presiona el botón "Refresh" ![save](img/mod_refresh.png)
+
+OpenCart indicará que las modificaciones han sido exitosas sobre el plugin:
+
+  ![Paso 10](img/paso10.png)
 
 ## Prueba de instalación con transacción
 
@@ -109,7 +123,7 @@ En ambiente de integración es posible realizar una prueba de transacción utili
 
   ![demo 9](img/demo9.png)
   
-* Vuelve a la ventana del navegador donde se encuentra Opencart y podrás comprobar que el pago ha sido exitoso.
+* Vuelve a la ventana del navegador donde se encuentra OpenCart y podrás comprobar que el pago ha sido exitoso.
 
  ![demo 10](img/demo10.png)
 
