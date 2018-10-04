@@ -75,9 +75,7 @@ Para el ambiente de Integración, puedes utilizar las siguientes credenciales pa
 
   ![Paso 9](img/paso9.png)
 
-10. Con el plugin "Transbank Onepay" seleccionado presiona el botón "Clear" ![save](img/mod_clear.png)
-
-11. Con el plugin "Transbank Onepay" seleccionado presiona el botón "Refresh" ![save](img/mod_refresh.png)
+10. Con el plugin "Transbank Onepay" seleccionado presiona el botón "Refresh" ![save](img/mod_refresh.png) de la parte superior derecha.
 
 OpenCart indicará que las modificaciones han sido exitosas sobre el plugin:
 
