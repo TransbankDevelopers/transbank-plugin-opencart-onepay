@@ -2,6 +2,7 @@ version: '2'
 services:
   mariadb:
     image: 'bitnami/mariadb:10.1.36'
+    container_name: "onepay_opencart3_db"
     environment:
       - MARIADB_USER=bn_opencart
       - MARIADB_DATABASE=bitnami_opencart
@@ -10,6 +11,7 @@ services:
       - 'mariadb_data:/bitnami'
   opencart:
     image: 'bitnami/opencart:3.0.2-0'
+    container_name: "onepay_opencart3_web"
     environment:
       - MARIADB_HOST=mariadb
       - MARIADB_PORT_NUMBER=3306
@@ -17,6 +19,9 @@ services:
       - OPENCART_DATABASE_NAME=bitnami_opencart
       - OPENCART_HOST=localhost
       - ALLOW_EMPTY_PASSWORD=yes
+      - OPENCART_USERNAME=admin
+      - OPENCART_PASSWORD=password
+      - OPENCART_EMAIL=admin@example.com
     labels:
       kompose.service.type: nodeport
     ports:

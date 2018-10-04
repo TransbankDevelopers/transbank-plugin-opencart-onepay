@@ -2,7 +2,7 @@
 
 #  Opencart Docker para desarrollo
 
-### Apache 2.4 + PHP 7.0 + MariaDB + Opencart 3.0.2-0
+### PHP 7.0 + MariaDB + Opencart 3.0.2-0
 
 ### Requerimientos
 
@@ -45,8 +45,8 @@ sudo chmod -R 775 /opt/bitnami/opencart/
 
 **Admin:** http://localhost/admin
 
-    user: user
-    password: bitnami1
+    user: admin
+    password: password
 
 ### Archivo de logs del plugin
 

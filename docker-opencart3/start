@@ -6,8 +6,8 @@ echo "
       🌎 Web server: http://localhost/
 
       ⚙️ Admin: http://localhost/admin
-            
-            user: user
-            password: bitnami1
+
+            user: admin
+            password: password
 
 ========================================"
