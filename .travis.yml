@@ -2,10 +2,10 @@ language: php
 php:
 - '5.5'
 
-script: echo "We don't have tests yet :("
+script: echo "We don't have tests yet :( - $TRAVIS_TAG"
 
 before_deploy:
-  - sh package.sh
+- sh package.sh
 
 deploy:
   provider: releases
