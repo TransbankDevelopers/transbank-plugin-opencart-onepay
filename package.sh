@@ -2,6 +2,8 @@
 
 #Script for create the plugin artifact
 
+echo "Travis tag: $TRAVIS_TAG"
+
 if [[ ! -v TRAVIS_TAG ]]; then
     TRAVIS_TAG='1.0.0'
 fi
