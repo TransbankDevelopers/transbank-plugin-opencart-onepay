@@ -1,5 +1,5 @@
 .DS_Store
 /.idea
 .idea
-upload/system/library/transbank-sdk-php
+src/upload/system/library/transbank-sdk-php
 plugin-transbank-onepay-**.zip
