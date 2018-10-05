@@ -9,7 +9,7 @@ $_['text_edit'] = 'Parámetros de configuración';
 $_['text_transbank_onepay'] = '<img src="view/image/payment/transbank_onepay.png" alt="Transbank Onepay" title="Transbank Onepay" style="border: 1px solid #EEEEEE;" />';
 
 // Entry
-$_['entry_transbank_onepay_environment'] = 'Enpoint';
+$_['entry_transbank_onepay_environment'] = 'Endpoint';
 $_['entry_transbank_onepay_apikey_test'] = 'APIKey Integración';
 $_['entry_transbank_onepay_shared_secret_test'] = 'Shared Secret Integración';
 $_['entry_transbank_onepay_apikey_live'] = 'APIKey Producción';
