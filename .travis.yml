@@ -5,6 +5,7 @@ php:
 script: echo "We don't have tests yet :( - $TRAVIS_TAG"
 
 before_deploy:
+- sh config.sh
 - sh package.sh
 
 deploy:
