@@ -8,7 +8,7 @@ DIR_NAME_SDK="transbank-sdk-php"
 DIR_DEST_SDK="$DIR_LIBS/$DIR_NAME_SDK"
 
 echo "Removing the older SDK $DIR_DEST_SDK"
-rm -rf "$DIR_DEST_SDK**"
+rm -rf $DIR_DEST_SDK**
 
 echo "Downloading SDK version: $PHP_SDK_VERSION from: $REPO_SDK"
 curl -O -L $REPO_SDK
