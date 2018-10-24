@@ -8,3 +8,7 @@ y este proyecto adhiere a [Semantic Versioning](http://semver.org/spec/v2.0.0.ht
 ### Added
 - Primera versión funcional del plugin opencart 3.x para Onepay
 - Implementa pago
+
+## [1.0.1] - 2018-10-24
+### Changed
+- Se actualiza sdk js a versíon 1.5.7
