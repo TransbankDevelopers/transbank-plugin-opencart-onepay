@@ -6,8 +6,8 @@ y este proyecto adhiere a [Semantic Versioning](http://semver.org/spec/v2.0.0.ht
 
 ## [1.0.2] - 2018-10-29
 ### Changed
-- Se actualiza sdk js a versión 1.5.8
-- Se actualiza sdk php a versión 1.4.1
+- Corrige un problema de comunicación entre la ventana de pago de Onepay y el servicio de pago de Onepay
+- Corrige un problema al abrir la aplicación instalada de Onepay desde el browser de Android.
 
 ## [1.0.1] - 2018-10-24
 ### Changed
