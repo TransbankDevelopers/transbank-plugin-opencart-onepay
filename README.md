@@ -31,5 +31,6 @@ Para usarlo seguir el siguiente [README Opencart 3.x](./docker-opencart3)
 
 ## Instalación del plugin para un comercio
 
-El manual de instalación para el usuario final se encuentra disponible [acá](docs/INSTALLATION.md) o en PDF [acá](https://github.com/TransbankDevelopers/transbank-plugin-opencart-onepay/raw/master/docs/INSTALLATION.pdf
-)
+Puedes encontrar toda la documentación de cómo usar este plugin en el sitio https://www.transbankdevelopers.cl.
+
+La documentación relevante para usar e instalar el plugin [lo encuentras acá.](https://www.transbankdevelopers.cl/plugin/opencart/onepay)
