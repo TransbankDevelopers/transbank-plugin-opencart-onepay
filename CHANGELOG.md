@@ -6,7 +6,7 @@ y este proyecto adhiere a [Semantic Versioning](http://semver.org/spec/v2.0.0.ht
 
 ## [1.0.3] - 2018-11-15
 ### Changed
-- Actualiza sdk js a versión 1.5.9, que mejora el comportamiento para usuarios iOS que no poseen la aplicación Onepay instalada
+- Mejora el comportamiento para usuarios iOS que no poseen la aplicación Onepay instalada
 
 ## [1.0.2] - 2018-10-29
 ### Changed
