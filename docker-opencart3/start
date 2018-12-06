@@ -8,6 +8,6 @@ echo "
       ⚙️ Admin: http://localhost/admin
 
             user: admin
-            password: password
+            password: admin123
 
 ========================================"
