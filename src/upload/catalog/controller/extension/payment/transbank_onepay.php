@@ -36,6 +36,17 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
         $data['action_commit'] = $this->url->link('extension/payment/transbank_onepay/commitTransaction', '', 'SSL');
         $data['logo_url'] = $this->transbankSdkOnepay->getLogoUrl();
 
+        $transactionDescription = '';
+
+        if (count($this->cart->getProducts()) == 1) {
+            foreach ($this->cart->getProducts() as $product) {
+                $transactionDescription = htmlspecialchars($product['name']) . ' ' . htmlspecialchars($product['model']);
+                break;
+            }
+        }
+
+        $data['transaction_description'] = $transactionDescription;
+
         return $this->load->view('extension/payment/transbank_onepay', $data);
     }
 
@@ -90,7 +101,9 @@ class ControllerExtensionPaymentTransbankOnepay extends Controller {
                 }
             }
 
-            $response = $this->transbankSdkOnepay->createTransaction($channel, $paymentMethod, $items);
+            $callbackUrl = $this->url->link('extension/payment/transbank_onepay/commitTransaction', '', 'SSL');
+
+            $response = $this->transbankSdkOnepay->createTransaction($channel, $paymentMethod, $items, $callbackUrl);
         }
 
         $this->response->addHeader('Content-Type: application/json');

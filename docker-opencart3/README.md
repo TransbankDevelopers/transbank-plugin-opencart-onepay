@@ -42,18 +42,6 @@ Para instalar Opencart, hacer lo siguiente:
 ./shell
 ```
 
-### Importante
-La primera vez es necesario corregir unos permisos del contenedor, ingresar al contenedor
-```
-./shell
-```
-
-y ejecutar los siguientes comandos
-```
-sudo chown -R bitnami:daemon /opt/bitnami/opencart/
-sudo chmod -R 775 /opt/bitnami/opencart/
-```
-
 ### Paneles
 
 **Web server:** http://localhost/
@@ -61,7 +49,7 @@ sudo chmod -R 775 /opt/bitnami/opencart/
 **Admin:** http://localhost/admin
 
     user: admin
-    password: password
+    password: admin123
 
 ### Archivo de logs del plugin
 
@@ -70,6 +58,19 @@ sudo chmod -R 775 /opt/bitnami/opencart/
 tail -f /bitnami/opencart/system/storage/logs/onepay-log.log
 ```
     
+## Extras para usar ngrok y probar en dominio virtual especialmente para emular producción
+
+1.- Ejecutar ngrok y obtener la url dada por ngrok en `Forwarding` http
+
+    ngrok http 80
+
+2.- Modificar el archivo `docker-composer.yml` y reconstruir el docker
+
+    OPENCART_HOST=URL_DADA_POR_NGROK
+
+    Ej: OPENCART_HOST=c0c8db10.ngrok.io
+
+
 Basado en:
 
 [Imagen docker](https://hub.docker.com/r/bitnami/opencart)
